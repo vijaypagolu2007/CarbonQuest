@@ -1,10 +1,10 @@
 # 🌍 CarbonQuest
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Cloud%20Run-brightgreen?style=flat-square&logo=google-cloud)](https://carbonquest-299544098528.us-central1.run.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Cloud%20Run-brightgreen?style=flat-square&logo=google-cloud)](https://carbonquest-64990759915.us-central1.run.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-CarbonQuest-black?style=flat-square&logo=github)](https://github.com/vijaypagolu2007/CarbonQuest)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-**Live Demo**: [https://carbonquest-299544098528.us-central1.run.app/](https://carbonquest-299544098528.us-central1.run.app/)
+**Live Demo**: [https://carbonquest-64990759915.us-central1.run.app/](https://carbonquest-64990759915.us-central1.run.app/)
 
 **Make Carbon Visible. Make Change Real.**
 

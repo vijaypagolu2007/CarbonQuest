@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { signInWithEmail, signInWithGoogle, parseAuthError } from '@/lib/firebase/auth'
 import { AuthError } from 'firebase/auth'
 
@@ -262,6 +262,7 @@ export default function SignInPage() {
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword(!showPassword)}
                   style={{
                     position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',

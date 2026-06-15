@@ -8,9 +8,7 @@ import {
   orderBy,
   limit as firestoreLimit,
   getDocs,
-  updateDoc,
   serverTimestamp,
-  where,
 } from 'firebase/firestore'
 import { db } from './config'
 import type { UserProfile, ActivityLog, WorldState, ChallengeProgress, ChatMessage, QuizAnswers, WeeklyFootprint } from '@/types'

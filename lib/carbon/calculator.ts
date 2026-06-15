@@ -19,12 +19,7 @@ import type {
 } from '@/types'
 
 // ── Named constants (no magic numbers) ───────────────────────────────────────
-const WORLD_SCORE_BASE = 1_000
-const WORLD_SCORE_MAX = 1_000
-const POLLUTION_WEIGHT = 700
-const GREEN_WEIGHT = 300
 const RECENT_ACTIVITY_WINDOW = 50
-const BASELINE_POLLUTION_MULTIPLIER = 2
 const ECO_SCORE_MAX = 1_000
 const CHALLENGE_BONUS_PER_COMPLETION = 100
 const STREAK_BONUS_PER_DAY = 5
@@ -153,14 +148,6 @@ export function calculateWorldState(activities: ActivityLog[], baseline: number)
   const hasVegetarianFood = recentActivities.some(
     (a) => a.type === 'food' && ['vegan_meal', 'vegetarian_meal'].includes(a.subtype)
   )
-  const hasEnergySaving = recentActivities.some(
-    (a) => a.type === 'energy' && a.co2eImpact <= 0
-  )
-  const hasRecycling = recentActivities.some(
-    (a) => a.type === 'waste' && a.co2eImpact < 0
-  )
-
-  const overallScore = Math.max(0, Math.min(WORLD_SCORE_MAX, WORLD_SCORE_BASE - pollutionRatio * POLLUTION_WEIGHT + greenRatio * GREEN_WEIGHT))
 
   return {
     skyPollution: pollutionRatio,
@@ -252,7 +239,7 @@ export function calculateGameImpact(activityType: ActivityCategory, subtype: str
   }
 
   const bossDef = MOCK_BOSSES.find(b => b.id === activeBoss)
-  let unlockedAssets = [...(state.unlockedAssets || [])]
+  const unlockedAssets = [...(state.unlockedAssets || [])]
   
   if (bossDef && isGood) {
     if (activityType === bossDef.weaknessCategory) {

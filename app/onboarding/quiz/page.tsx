@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QUIZ_STEPS } from '@/data/quiz-questions'
@@ -21,14 +21,13 @@ export default function QuizPage() {
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)
   const [answers, setAnswers] = useState<Partial<QuizAnswers>>({ wasteHabits: [], hasRenewable: false })
-  const [liveCO2, setLiveCO2] = useState(0)
   const [isSaving, setIsSaving] = useState(false)
 
   const currentStep = QUIZ_STEPS[step]
   const totalSteps = QUIZ_STEPS.length
   const progress = ((step + 1) / totalSteps) * 100
 
-  useEffect(() => {
+  const liveCO2 = useMemo(() => {
     let total = 0
     QUIZ_STEPS.forEach((s) => {
       const answer = answers[s.id as keyof QuizAnswers]
@@ -42,7 +41,7 @@ export default function QuizPage() {
         })
       }
     })
-    setLiveCO2(Math.max(0, total))
+    return Math.max(0, total)
   }, [answers])
 
   function selectSingle(value: string) {

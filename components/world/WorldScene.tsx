@@ -2,8 +2,7 @@
 
 import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Float, Sky, Sphere } from '@react-three/drei';
-import * as THREE from 'three';
+import { OrbitControls, Float, Sphere } from '@react-three/drei';
 import { CarbonBoss3D } from './CarbonBoss3D';
 
 interface WorldSceneProps {
@@ -123,7 +122,7 @@ const FloatingIsland: React.FC<IslandProps> = ({ position, isLush, scale = 1, ro
 );
 
 // ── Main scene ────────────────────────────────────────────────────────────────
-export const WorldScene: React.FC<WorldSceneProps> = ({
+export const WorldScene = React.memo<WorldSceneProps>(({
   carbonReductionScore,
   activeBoss,
   bossHealth,
@@ -238,4 +237,6 @@ export const WorldScene: React.FC<WorldSceneProps> = ({
       </Canvas>
     </div>
   );
-};
+});
+
+WorldScene.displayName = 'WorldScene';

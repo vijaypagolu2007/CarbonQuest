@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { calculateBaselineFootprint } from './calculator'
+import { 
+  calculateBaselineFootprint,
+  getFootprintCategory,
+  getRelatableComparison,
+  calculateWorldState,
+  calculateEcoScore,
+  calculateCarbonMoodScore,
+  calculateActivityImpact,
+  calculateGameImpact
+} from './calculator'
 import type { QuizAnswers } from '@/types'
 
 // ─── Default quiz answer set ──────────────────────────────────────────────────
@@ -92,5 +101,104 @@ describe('calculateBaselineFootprint', () => {
     const daily = calculateBaselineFootprint(makeAnswers({ shoppingFreq: 'daily' }))
     const rarely = calculateBaselineFootprint(makeAnswers({ shoppingFreq: 'rarely' }))
     expect(daily.byCategory.shopping).toBeGreaterThan(rarely.byCategory.shopping)
+  })
+})
+
+describe('getFootprintCategory', () => {
+  it('returns low for <30', () => {
+    expect(getFootprintCategory(20)).toBe('low')
+  })
+  it('returns moderate for 30-60', () => {
+    expect(getFootprintCategory(45)).toBe('moderate')
+  })
+  it('returns high for >=60', () => {
+    expect(getFootprintCategory(65)).toBe('high')
+  })
+})
+
+describe('getRelatableComparison', () => {
+  it('returns string equivalent', () => {
+    expect(getRelatableComparison(0.5)).toContain('phone')
+    expect(getRelatableComparison(2)).toContain('driving')
+    expect(getRelatableComparison(8)).toContain('petrol')
+    expect(getRelatableComparison(20)).toContain('tree')
+    expect(getRelatableComparison(100)).toContain('flights')
+  })
+})
+
+describe('calculateWorldState', () => {
+  it('calculates world state correctly', () => {
+    const activities = [
+      { type: 'food', subtype: 'vegan_meal', co2eImpact: -1 },
+      { type: 'transport', subtype: 'car_petrol_km', co2eImpact: 5 }
+    ] as unknown as never[]
+    const state = calculateWorldState(activities, 50)
+    expect(state.skyPollution).toBeGreaterThan(0)
+    expect(state.treeStage).toBeGreaterThan(0)
+  })
+})
+
+describe('calculateEcoScore', () => {
+  it('calculates eco score correctly', () => {
+    const activities = [{ ecoPoints: 10 }, { ecoPoints: 20 }] as unknown as never[]
+    const challenges = [{ completedAt: '2023-01-01' }] as unknown as never[]
+    const score = calculateEcoScore(activities, 2, challenges)
+    expect(score).toBe(140) // 30 + 10 + 100
+  })
+})
+
+describe('calculateCarbonMoodScore', () => {
+  it('returns balanced for no activities', () => {
+    expect(calculateCarbonMoodScore([])).toBe('balanced')
+  })
+  it('returns green for low emissions', () => {
+    expect(calculateCarbonMoodScore([{ co2eImpact: -1 } as never])).toBe('green')
+  })
+  it('returns heavy for high emissions', () => {
+    expect(calculateCarbonMoodScore([{ co2eImpact: 10 } as never])).toBe('heavy')
+  })
+})
+
+describe('calculateActivityImpact', () => {
+  it('returns expected impact', () => {
+    const impact = calculateActivityImpact('food', 'beef_meal', 1)
+    expect(impact).toBeGreaterThan(0)
+  })
+})
+
+describe('calculateGameImpact', () => {
+  const baseState = {
+    worldHealth: 50,
+    xp: 100,
+    activeBoss: 'b1',
+    bossHealth: 100,
+    bossMaxHealth: 500,
+    activeQuests: [],
+    unlockedAssets: []
+  }
+
+  it('calculates game impact for good action', () => {
+    const result = calculateGameImpact('food', 'vegan_meal', 1, baseState as never)
+    expect(result.healthDelta).toBeGreaterThan(0)
+    expect(result.xpDelta).toBeGreaterThan(0)
+    expect(result.bossDamage).toBeGreaterThan(0)
+    expect(result.newState.worldHealth).toBeGreaterThan(50)
+  })
+
+  it('calculates game impact for bad action', () => {
+    const result = calculateGameImpact('food', 'beef_meal', 1, baseState as never)
+    expect(result.healthDelta).toBeLessThan(0)
+    expect(result.newState.worldHealth).toBeLessThan(50)
+  })
+
+  it('handles boss logic correctly', () => {
+    const noBossState = { ...baseState, activeBoss: null, bossHealth: undefined }
+    const result = calculateGameImpact('transport', 'cycling_km', 1, noBossState as never)
+    expect(result.newState.activeBoss).toBeDefined()
+  })
+
+  it('handles quest logic correctly', () => {
+    const result = calculateGameImpact('food', 'vegan_meal', 1, { ...baseState, activeQuests: null } as never)
+    expect(result.newState.activeQuests).toBeDefined()
   })
 })

@@ -1,10 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/firebase/AuthContext'
-import { getGameState, getUserProfile } from '@/lib/firebase/firestore'
-import type { GameState } from '@/types'
+import { getUserProfile, getGameState } from '@/lib/firebase/firestore'
 
 type LeaderboardUser = {
   id: string
@@ -16,15 +15,13 @@ type LeaderboardUser = {
 
 export default function TeamPage() {
   const { user, isLoading: authLoading } = useAuth()
-  const [gameState, setGameState] = useState<GameState | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([])
-  const [userName, setUserName] = useState<string>('You')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      setLoading(false)
+      setTimeout(() => setLoading(false), 0)
       return
     }
 
@@ -36,8 +33,6 @@ export default function TeamPage() {
         ])
         
         const currentState = state || { worldHealth: 50, xp: 0, level: 1, streak: 1, carbonTrend: 'stable', unlockedAssets: [], activeBoss: null }
-        setGameState(currentState)
-        setUserName(profile?.displayName || 'You')
 
         // Generate fake teammates for demo purposes
         const mockUsers: LeaderboardUser[] = [
@@ -58,9 +53,7 @@ export default function TeamPage() {
 
         const fullTeam = [...mockUsers, currentUserData].sort((a, b) => b.xp - a.xp)
         setLeaderboard(fullTeam)
-      } catch (err) {
-        console.error(err)
-      } finally {
+      } catch {
         setLoading(false)
       }
     }
@@ -87,7 +80,7 @@ export default function TeamPage() {
           text: inviteText,
           url: inviteUrl,
         })
-      } catch (err) {
+      } catch {
         // user cancelled share or error
         console.log('Share dismissed')
       }

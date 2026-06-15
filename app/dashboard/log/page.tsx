@@ -12,7 +12,7 @@ import {
   updateGameState
 } from '@/lib/firebase/firestore'
 import { calculateActivityImpact, calculateWorldState, calculateGameImpact } from '@/lib/carbon/calculator'
-import type { ActivityCategory, ActivityLog, GameState } from '@/types'
+import type { ActivityCategory, ActivityLog } from '@/types'
 
 const CATEGORIES: { id: ActivityCategory; icon: string; label: string }[] = [
   { id: 'food', icon: '🍽️', label: 'Food' },
@@ -63,7 +63,7 @@ export default function LogActivityPage() {
   useEffect(() => {
     const qs = sessionStorage.getItem('quickstart_category')
     if (qs && CATEGORIES.some(c => c.id === qs)) {
-      setActiveTab(qs as ActivityCategory)
+      setTimeout(() => setActiveTab(qs as ActivityCategory), 0)
       sessionStorage.removeItem('quickstart_category')
     }
   }, [])
@@ -91,8 +91,8 @@ export default function LogActivityPage() {
       await updateWorldState(user.uid, newWorldState)
 
       // GAMIFICATION LOGIC
-      let fetchedState = await getGameState(user.uid)
-      let gameState = { 
+      const fetchedState = await getGameState(user.uid)
+      const gameState = { 
         worldHealth: fetchedState?.worldHealth ?? 50, 
         xp: fetchedState?.xp ?? 0, 
         level: fetchedState?.level ?? 1, 
@@ -105,7 +105,7 @@ export default function LogActivityPage() {
         activeQuests: fetchedState?.activeQuests
       }
       
-      const { healthDelta, newHealth, xpDelta, bossDamage, newState } = calculateGameImpact(activeTab, selectedAction, quantity, gameState as any)
+      const { healthDelta, xpDelta, bossDamage, newState } = calculateGameImpact(activeTab, selectedAction, quantity, gameState)
       
       // Basic level up logic (100 xp per level)
       if ((newState.xp ?? 0) >= (newState.level ?? 1) * 100) {

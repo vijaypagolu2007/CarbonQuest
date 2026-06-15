@@ -8,13 +8,13 @@ import { getGameState, getActivities } from '@/lib/firebase/firestore'
 type Message = { role: 'user' | 'model'; content: string; id: string }
 
 export default function CoachPage() {
-  const { user, isLoading: authLoading } = useAuth()
+  const { user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([
     { id: '1', role: 'model', content: 'Hi there! 🌱 I am your Eco Guardian. I am here to help you defeat those Carbon Monsters and grow your Living World! How are you doing today?' }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [context, setContext] = useState<any>(null)
+  const [context, setContext] = useState<unknown>(null)
   
   const endOfMessagesRef = useRef<HTMLDivElement>(null)
 
@@ -127,6 +127,7 @@ export default function CoachPage() {
           />
           <button 
             type="submit" 
+            aria-label="Send message"
             disabled={isLoading || !input.trim() || !user}
             style={{ background: '#00FF87', border: 'none', width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: isLoading || !input.trim() ? 0.5 : 1 }}
           >

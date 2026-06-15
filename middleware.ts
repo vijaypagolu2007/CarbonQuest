@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PUBLIC_ROUTES = ['/', '/auth/signin', '/auth/signup', '/auth/forgot-password']
 const ONBOARDING_ROUTES = ['/onboarding']
 const DASHBOARD_ROUTES = ['/dashboard']
 

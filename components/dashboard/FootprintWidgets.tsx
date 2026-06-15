@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+// Removed useState
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { UserProfile, ActivityLog } from '@/types'
+import type { UserProfile } from '@/types'
 
 interface FootprintWidgetsProps {
   profile: UserProfile | null
-  onLogAction: (activity: Omit<ActivityLog, 'id' | 'userId'>) => Promise<void>
 }
 
 const CATEGORY_CONFIG = {
@@ -24,10 +23,10 @@ const RECOMMENDATION_CONFIGS = {
   default_transport: { id: 'r2', title: 'Walk for a Short Errand', description: 'Zero-emission and healthy!', points: 15, co2: 1.5, type: 'transport' as const, icon: '🚶' },
 }
 
-export function FootprintWidgets({ profile, onLogAction }: FootprintWidgetsProps) {
+export function FootprintWidgets({ profile }: FootprintWidgetsProps) {
   const router = useRouter()
-  const [loggedTasks, setLoggedTasks] = useState<string[]>([])
-  const [logging, setLogging] = useState<string | null>(null)
+  const loggedTasks: string[] = []
+  const logging: string | null = null
 
   if (!profile || !profile.baselineFootprint) return null
 
@@ -173,7 +172,7 @@ export function FootprintWidgets({ profile, onLogAction }: FootprintWidgetsProps
             Personalized for You
           </div>
           <h2 style={{ margin: 0, color: '#fff', fontSize: 20, fontFamily: "'Outfit', sans-serif", fontWeight: 800 }}>
-            Today's Actions
+            Today&apos;s Actions
           </h2>
         </div>
 

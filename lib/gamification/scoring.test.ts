@@ -15,7 +15,6 @@ function makeActivity(overrides: Partial<ActivityLog> = {}): ActivityLog {
     userId: 'user-1',
     type: 'food',
     subtype: 'vegan_meal',
-    quantity: 1,
     co2eImpact: -0.5,
     ecoPoints: 15,
     timestamp: new Date().toISOString(),

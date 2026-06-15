@@ -199,7 +199,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (authLoading) return
-    if (!user) { setLoading(false); return }
+    if (!user) { setTimeout(() => setLoading(false), 0); return }
     async function loadData() {
       try {
         const [state, profile] = await Promise.all([getGameState(user!.uid), getUserProfile(user!.uid)])

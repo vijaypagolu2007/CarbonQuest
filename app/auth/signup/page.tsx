@@ -203,7 +203,7 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)}
                   placeholder="Min. 6 characters" required style={{ ...inputStyle('password'), paddingRight: 48 }} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword(!showPassword)}
                   style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.3)', padding: 4, display: 'flex', alignItems: 'center' }}>
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>

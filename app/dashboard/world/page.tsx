@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useAuth } from '@/lib/firebase/AuthContext'
-import { getWorldState, getGameState, spawnWeeklyBoss, getUserProfile, logActivity } from '@/lib/firebase/firestore'
-import type { WorldState, GameState, UserProfile } from '@/types'
+import { useEffect, useState, useCallback } from 'react'
+import { motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
+import { useAuth } from '@/lib/firebase/AuthContext'
+import { getWorldState, getGameState, getUserProfile, spawnWeeklyBoss } from '@/lib/firebase/firestore'
+import type { WorldState, GameState, UserProfile } from '@/types'
 import { BossUI } from '@/components/dashboard/BossUI'
 import { FootprintWidgets } from '@/components/dashboard/FootprintWidgets'
 import DashboardLoading from '@/app/dashboard/loading'
@@ -34,13 +34,13 @@ const DEFAULT_GAME: GameState = {
 }
 
 export default function WorldPage() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [worldState, setWorldState] = useState<WorldState | null>(null)
   const [gameState, setGameState] = useState<GameState | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return
     try {
       const [wState, gState, uProfile] = await Promise.all([
@@ -58,11 +58,16 @@ export default function WorldPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user])
 
   useEffect(() => {
-    loadData()
-  }, [user])
+    if (authLoading) return
+    if (!user) {
+      setTimeout(() => setLoading(false), 0)
+      return
+    }
+    setTimeout(() => loadData(), 0)
+  }, [user, authLoading, loadData])
 
   if (loading || !worldState || !gameState) {
     return <DashboardLoading />
@@ -225,11 +230,6 @@ export default function WorldPage() {
         {/* Footprint & Recommendations */}
         <FootprintWidgets
           profile={profile}
-          onLogAction={async (activity) => {
-            if (!user) return
-            await logActivity(user.uid, { ...activity, userId: user.uid })
-            await loadData()
-          }}
         />
 
         {/* Debug Summon Boss Button */}

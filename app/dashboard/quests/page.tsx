@@ -6,7 +6,7 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { useAuth } from '@/lib/firebase/AuthContext'
 import { getGameState } from '@/lib/firebase/firestore'
 import { MOCK_BOSSES, MOCK_QUESTS } from '@/lib/carbon/calculator'
-import type { GameState, DailyQuest, CarbonBoss } from '@/types'
+import type { GameState } from '@/types'
 import DashboardLoading from '@/app/dashboard/loading'
 
 // ─── Category colour mapping ────────────────────────────────────────────────
@@ -234,7 +234,7 @@ export default function QuestsPage() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      setGameLoading(false)
+      setTimeout(() => setGameLoading(false), 0)
       return
     }
     getGameState(user.uid).then(state => {

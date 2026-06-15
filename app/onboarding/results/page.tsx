@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { TrendingDown, TrendingUp, Minus } from 'lucide-react'
 import { getRelatableComparison, getFootprintCategory } from '@/lib/carbon/calculator'

@@ -27,8 +27,9 @@ function parseAuthError(error: AuthError): string {
     'auth/too-many-requests': 'Too many attempts. Please try again later.',
     'auth/popup-closed-by-user': 'Sign-in was cancelled.',
     'auth/network-request-failed': 'Network error. Check your connection.',
+    'auth/unauthorized-domain': 'This domain is not authorized for OAuth operations in Firebase Console.',
   }
-  return errorMap[error.code] ?? 'Something went wrong. Please try again.'
+  return errorMap[error.code] ?? `Something went wrong. (${error.code || 'Unknown Error'})`
 }
 
 export async function signInWithGoogle(): Promise<User> {

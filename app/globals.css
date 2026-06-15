@@ -35,6 +35,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* WCAG 2.1 — visible focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--eco-green);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Remove focus ring for mouse users only */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 body::before, body::after {
   content: "";
   position: fixed;

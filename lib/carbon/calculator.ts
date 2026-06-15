@@ -18,6 +18,25 @@ import type {
   GameState
 } from '@/types'
 
+// ── Named constants (no magic numbers) ───────────────────────────────────────
+const WORLD_SCORE_BASE = 1_000
+const WORLD_SCORE_MAX = 1_000
+const POLLUTION_WEIGHT = 700
+const GREEN_WEIGHT = 300
+const RECENT_ACTIVITY_WINDOW = 50
+const BASELINE_POLLUTION_MULTIPLIER = 2
+const ECO_SCORE_MAX = 1_000
+const CHALLENGE_BONUS_PER_COMPLETION = 100
+const STREAK_BONUS_PER_DAY = 5
+const GOOD_ACTION_HEALTH_DELTA = 4
+const BAD_ACTION_HEALTH_DELTA = -4
+const GOOD_ACTION_XP = 25
+const BAD_ACTION_XP = 5
+const BASE_BOSS_DAMAGE = 20
+const CRITICAL_HIT_MULTIPLIER = 2
+const HEAVY_CO2_THRESHOLD = 3
+const HEAVY_MOOD_THRESHOLD = 8
+
 export const MOCK_BOSSES: CarbonBoss[] = [
   { id: 'b1', name: 'The Fast-Food Behemoth', description: 'A massive blob of single-use wrappers and processed meat. Weak to plant-based choices!', health: 500, maxHealth: 500, weaknessCategory: 'food', rewardAsset: 'flower_garden' },
   { id: 'b2', name: 'The Smog Serpent', description: 'A flying dragon made of exhaust fumes. Defeat it by taking eco-friendly transit!', health: 800, maxHealth: 800, weaknessCategory: 'transport', rewardAsset: 'wind_turbine' },
@@ -30,7 +49,12 @@ export const MOCK_QUESTS: DailyQuest[] = [
   { id: 'q3', title: 'Log a recycling action', rewardXp: 30, rewardHealth: 2, completed: false, targetCategory: 'waste', targetActionType: 'positive' },
 ]
 
-/** Calculate the user's baseline weekly footprint from onboarding quiz answers */
+/**
+ * Calculates the user's baseline weekly carbon footprint from their onboarding quiz answers.
+ *
+ * @param answers - The completed quiz answers from onboarding
+ * @returns A WeeklyFootprint object with total kg CO₂e and a per-category breakdown
+ */
 export function calculateBaselineFootprint(answers: QuizAnswers): WeeklyFootprint {
   const food = BASELINE_BY_DIET[answers.diet] ?? 45
   const transport = COMMUTE_WEEKLY[answers.commute] ?? 29.4
@@ -62,7 +86,14 @@ export function calculateBaselineFootprint(answers: QuizAnswers): WeeklyFootprin
   }
 }
 
-/** Calculate CO2e impact for a single logged activity */
+/**
+ * Calculates the CO₂e impact in kg for a single logged activity.
+ *
+ * @param activityType - The high-level category (e.g. 'food', 'transport')
+ * @param subtype - The specific activity subtype (e.g. 'vegan_meal', 'car_petrol_km')
+ * @param quantity - The amount (e.g. number of km, meals, or kg). Defaults to 1.
+ * @returns The CO₂e impact in kg, rounded to 2 decimal places. Positive = emissions, negative = savings.
+ */
 export function calculateActivityImpact(
   activityType: ActivityCategory,
   subtype: string,
@@ -73,14 +104,25 @@ export function calculateActivityImpact(
   return Math.round(factor * quantity * 100) / 100
 }
 
-/** Classify a weekly footprint into a category */
+/**
+ * Classifies a weekly footprint total into a human-readable category.
+ *
+ * @param kgCO2ePerWeek - Total weekly footprint in kg CO₂e
+ * @returns 'low' (<30), 'moderate' (30–60), or 'high' (≥60)
+ */
 export function getFootprintCategory(kgCO2ePerWeek: number): FootprintCategory {
   if (kgCO2ePerWeek < 30) return 'low'
   if (kgCO2ePerWeek < 60) return 'moderate'
   return 'high'
 }
 
-/** Return a human-readable comparison string for a given kg CO2e amount */
+/**
+ * Returns a relatable real-world comparison string for a given CO₂e amount.
+ * For example, "equivalent to driving 42 km in a petrol car".
+ *
+ * @param kgCO2e - The CO₂e amount (can be negative for savings)
+ * @returns A human-readable comparison string
+ */
 export function getRelatableComparison(kgCO2e: number): string {
   const absKg = Math.abs(kgCO2e)
   const match = [...RELATABLE_COMPARISONS]
@@ -89,9 +131,16 @@ export function getRelatableComparison(kgCO2e: number): string {
   return match ? match.text(absKg) : `= ${absKg.toFixed(2)} kg CO₂e`
 }
 
-/** Derive the living world state from the user's recent activities and baseline */
+/**
+ * Derives the living world's visual state from the user's recent activity history.
+ * Controls sky pollution, tree growth, river clarity, smoke, and garden bloom.
+ *
+ * @param activities - Full list of the user's logged activities (uses the most recent 50)
+ * @param baseline - The user's baseline weekly footprint in kg CO₂e, used to normalize pollution
+ * @returns A WorldState object with all visual parameters between 0 and 1
+ */
 export function calculateWorldState(activities: ActivityLog[], baseline: number): WorldState {
-  const recentActivities = activities.slice(0, 50)
+  const recentActivities = activities.slice(0, RECENT_ACTIVITY_WINDOW)
 
   const totalImpact = recentActivities.reduce((sum, a) => sum + a.co2eImpact, 0)
   const positiveActions = recentActivities.filter((a) => a.co2eImpact <= 0).length
@@ -111,7 +160,7 @@ export function calculateWorldState(activities: ActivityLog[], baseline: number)
     (a) => a.type === 'waste' && a.co2eImpact < 0
   )
 
-  const overallScore = Math.max(0, Math.min(1000, 1000 - pollutionRatio * 700 + greenRatio * 300))
+  const overallScore = Math.max(0, Math.min(WORLD_SCORE_MAX, WORLD_SCORE_BASE - pollutionRatio * POLLUTION_WEIGHT + greenRatio * GREEN_WEIGHT))
 
   return {
     skyPollution: pollutionRatio,
@@ -122,32 +171,53 @@ export function calculateWorldState(activities: ActivityLog[], baseline: number)
   }
 }
 
-/** Calculate the user's eco-score from activities, streak and challenge completions */
+/**
+ * Calculates the user's overall eco-score combining activity points, streak bonus, and challenge completions.
+ *
+ * @param activities - All logged activities
+ * @param streak - Current daily streak count
+ * @param challenges - List of challenge progress records
+ * @returns An eco-score clamped between 0 and 1000
+ */
 export function calculateEcoScore(
   activities: ActivityLog[],
   streak: number,
   challenges: ChallengeProgress[]
 ): number {
   const activityPoints = activities.reduce((sum, a) => sum + a.ecoPoints, 0)
-  const streakBonus = streak * 5
-  const challengeBonus = challenges.filter((c) => c.completedAt).length * 100
-  return Math.max(0, Math.min(1000, activityPoints + streakBonus + challengeBonus))
+  const streakBonus = streak * STREAK_BONUS_PER_DAY
+  const challengeBonus = challenges.filter((c) => c.completedAt).length * CHALLENGE_BONUS_PER_COMPLETION
+  return Math.max(0, Math.min(ECO_SCORE_MAX, activityPoints + streakBonus + challengeBonus))
 }
 
-/** Determine the carbon mood for today based on logged activities */
+/**
+ * Determines the user's carbon mood for today based on their logged activities.
+ *
+ * @param todaysActivities - All activities logged today
+ * @returns 'green' (doing well), 'balanced' (neutral or no logs), or 'heavy' (high emissions day)
+ */
 export function calculateCarbonMoodScore(todaysActivities: ActivityLog[]): CarbonMood {
   if (todaysActivities.length === 0) return 'balanced'
 
   const totalCO2 = todaysActivities.reduce((sum, a) => sum + a.co2eImpact, 0)
-  const heavyCount = todaysActivities.filter((a) => a.co2eImpact > 3).length
+  const heavyCount = todaysActivities.filter((a) => a.co2eImpact > HEAVY_CO2_THRESHOLD).length
   const greenCount = todaysActivities.filter((a) => a.co2eImpact <= 0).length
 
   if (totalCO2 < 2 && greenCount > heavyCount) return 'green'
-  if (totalCO2 > 8 || heavyCount >= 2) return 'heavy'
+  if (totalCO2 > HEAVY_MOOD_THRESHOLD || heavyCount >= 2) return 'heavy'
   return 'balanced'
 }
 
-/** Calculate GameState changes from a single activity */
+/**
+ * Calculates all game state changes resulting from a single logged activity.
+ * Handles world health, XP, boss damage, quest completions, and asset unlocks.
+ *
+ * @param activityType - The category of the logged activity
+ * @param subtype - The specific activity subtype
+ * @param quantity - How many units were logged
+ * @param state - The current GameState before this activity
+ * @returns Delta values and the full updated GameState
+ */
 export function calculateGameImpact(activityType: ActivityCategory, subtype: string, quantity: number, state: GameState) {
   let healthDelta = 0
   let xpDelta = 10 * quantity
@@ -160,12 +230,12 @@ export function calculateGameImpact(activityType: ActivityCategory, subtype: str
   const isBad = badActions.includes(subtype)
 
   if (isGood) {
-    healthDelta = 4 * quantity
-    xpDelta = 25 * quantity
-    bossDamage = 20 * quantity // base damage
+    healthDelta = GOOD_ACTION_HEALTH_DELTA * quantity
+    xpDelta = GOOD_ACTION_XP * quantity
+    bossDamage = BASE_BOSS_DAMAGE * quantity
   } else if (isBad) {
-    healthDelta = -4 * quantity
-    xpDelta = 5 * quantity
+    healthDelta = BAD_ACTION_HEALTH_DELTA * quantity
+    xpDelta = BAD_ACTION_XP * quantity
   }
 
   // Boss Logic
@@ -186,7 +256,7 @@ export function calculateGameImpact(activityType: ActivityCategory, subtype: str
   
   if (bossDef && isGood) {
     if (activityType === bossDef.weaknessCategory) {
-      bossDamage *= 2 // Critical hit!
+      bossDamage *= CRITICAL_HIT_MULTIPLIER
     }
     if (bossHealth !== undefined && bossHealth > 0) {
       bossHealth = Math.max(0, bossHealth - bossDamage)

@@ -198,6 +198,7 @@ export const WorldScene: React.FC<WorldSceneProps> = ({
         dpr={1}
         camera={{ position: [0, 6, 20], fov: 40 }}
         shadows={false}
+        frameloop="demand"
         gl={{ antialias: false, powerPreference: 'high-performance' }}
       >
         {/* Lighting — kept minimal for perf */}

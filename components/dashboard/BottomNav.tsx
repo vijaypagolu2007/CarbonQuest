@@ -34,6 +34,7 @@ export function BottomNav() {
           padding: '0 12px',
           paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
         }}
+        aria-label="Dashboard navigation"
       >
         {/* Glass pill container */}
         <div
@@ -60,6 +61,8 @@ export function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
+                aria-label={`Navigate to ${tab.label}`}
+                aria-current={isActive ? 'page' : undefined}
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -91,6 +94,7 @@ export function BottomNav() {
                     <motion.div
                       layoutId="activeTabPill"
                       transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+                      aria-hidden="true"
                       style={{
                         position: 'absolute',
                         inset: 0,
@@ -105,6 +109,7 @@ export function BottomNav() {
                   <Icon
                     size={isActive ? 22 : 20}
                     strokeWidth={isActive ? 2.2 : 1.6}
+                    aria-hidden="true"
                     style={{
                       color: isActive ? tab.accent : 'rgba(255,255,255,0.35)',
                       filter: isActive ? `drop-shadow(0 0 6px ${tab.accent}90)` : 'none',
@@ -119,6 +124,7 @@ export function BottomNav() {
                     <motion.div
                       layoutId="activeTabDot"
                       transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                      aria-hidden="true"
                       style={{
                         position: 'absolute',
                         bottom: '3px',
@@ -134,6 +140,7 @@ export function BottomNav() {
                 </motion.div>
 
                 <span
+                  aria-hidden="true"
                   style={{
                     fontFamily: "'Inter', sans-serif",
                     fontSize: '10px',

@@ -37,23 +37,24 @@ export default function HomePage() {
   if (isLoading) return null
 
   return (
-    <main className="min-h-screen bg-[#050d0a] flex flex-col relative overflow-hidden">
-      {/* Ambient background orbs */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#00FF87]/6 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 left-0 w-80 h-80 bg-[#00D4FF]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#00FF87]/4 rounded-full blur-3xl pointer-events-none" />
+    <main className="min-h-screen bg-[#050d0a] flex flex-col relative overflow-hidden" role="main">
+      {/* Ambient background orbs - decorative only */}
+      <div aria-hidden="true" className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-[#00FF87]/6 rounded-full blur-[120px] pointer-events-none" />
+      <div aria-hidden="true" className="absolute bottom-1/3 left-0 w-80 h-80 bg-[#00D4FF]/5 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden="true" className="absolute bottom-0 right-0 w-96 h-96 bg-[#00FF87]/4 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col min-h-screen px-5 max-w-lg mx-auto w-full safe-top safe-bottom">
 
         {/* Top nav */}
-        <nav className="flex items-center justify-between pt-6 pb-2">
+        <nav className="flex items-center justify-between pt-6 pb-2" aria-label="Main navigation">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌍</span>
+            <span className="text-xl" aria-hidden="true">🌍</span>
             <span className="font-outfit font-bold text-white">CarbonQuest</span>
           </div>
           <Link
             href="/auth/signin"
             className="text-white/50 text-sm hover:text-white transition-colors"
+            aria-label="Sign in to your account"
           >
             Sign in
           </Link>
@@ -147,25 +148,25 @@ export default function HomePage() {
             className="space-y-3"
           >
             {/* Primary CTA */}
-            <Link href="/auth/signup">
+            <Link href="/auth/signup" aria-label="Create a free account and start your carbon quest">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full gradient-eco text-black font-bold py-4 rounded-2xl flex items-center justify-center gap-2 text-base"
               >
                 Start My Quest
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5" aria-hidden="true" />
               </motion.div>
             </Link>
 
             {/* Quick Start */}
-            <Link href="/onboarding/quickstart">
+            <Link href="/onboarding/quickstart" aria-label="Quick start - begin tracking in 10 seconds without creating an account">
               <motion.div
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className="w-full glass py-3.5 rounded-2xl flex items-center justify-center gap-2 text-white/70 text-sm hover:text-white transition-colors"
               >
-                <Zap className="w-4 h-4 text-[#FFD700]" />
+                <Zap className="w-4 h-4 text-[#FFD700]" aria-hidden="true" />
                 Quick Start — 10 seconds
               </motion.div>
             </Link>

@@ -186,7 +186,14 @@ export const WorldScene: React.FC<WorldSceneProps> = ({
           : '0 16px 50px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.08)',
         transition: 'all 0.6s ease',
       }}
+      role="img"
+      aria-label="Interactive 3D eco-city. The health and lushness of the city reflects your real-world carbon footprint."
     >
+      {/* Screen reader description */}
+      <p style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+        A 3D animated floating eco-city. Healthy green islands with trees indicate low carbon emissions.
+        Pollution and smoke indicate high carbon emissions. Boss monsters appear when your footprint is high.
+      </p>
       <Canvas
         dpr={1}
         camera={{ position: [0, 6, 20], fov: 40 }}
